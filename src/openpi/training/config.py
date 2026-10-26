@@ -22,6 +22,7 @@ import openpi.policies.droid_policy as droid_policy
 import openpi.policies.libero_policy as libero_policy
 import openpi.shared.download as _download
 import openpi.shared.normalize as _normalize
+import openpi.shared.nnx_utils as nnx_utils
 import openpi.training.droid_rlds_dataset as droid_rlds_dataset
 import openpi.training.misc.polaris_config as polaris_config
 import openpi.training.misc.roboarena_config as roboarena_config
@@ -61,10 +62,24 @@ class AssetsConfig:
     asset_id: str | None = None
 
 
+# Shared normalization-statistics location for the future T1--T4 training configs.
+# The producing config below writes to
+# ``assets/cl_t1_norm_stats/physical-intelligence/libero/norm_stats.json``;
+# consumer configs should use this object rather than their per-run assets directory.
+CL_T1_T4_NORM_STATS_ASSETS = AssetsConfig(
+    assets_dir="./assets/cl_t1_norm_stats",
+    asset_id="physical-intelligence/libero",
+)
+
+
 @dataclasses.dataclass(frozen=True)
 class DataConfig:
     # LeRobot repo id. If None, fake data will be created.
     repo_id: str | None = None
+    # Optional local root directory for the LeRobot dataset.
+    dataset_root: str | None = None
+    # Optional episode IDs to include in this dataset.
+    episode_ids: tuple[int, ...] | None = None
     # Directory within the assets directory containing the data assets.
     asset_id: str | None = None
     # Contains precomputed normalization stats. If None, normalization will not be performed.
@@ -760,6 +775,116 @@ _CONFIGS = [
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
         pytorch_weight_path="/path/to/your/pytorch_weight_path",
         num_train_steps=30_000,
+    ),
+    # Minimal local smoke test: keeps the official pi05 model and initialization,
+    # but limits data and steps. Its fresh output directory must not be overwritten.
+    TrainConfig(
+        name="cl_pi05_t1_debug",
+        exp_name="t1_smoke_5steps_gpu3",
+        model=pi0_config.Pi0Config(pi05=True, action_horizon=10, discrete_state_input=False),
+        data=LeRobotLiberoDataConfig(
+            repo_id="physical-intelligence/libero",
+            base_config=DataConfig(
+                prompt_from_task=True,
+                dataset_root="/mnt/disk20t/xieyuxuan/denghaoxindatadisk/libero_data",
+                episode_ids=(
+                    109, 55, 111, 364, 229, 228, 298, 127, 61, 311, 209, 279, 227, 159, 133, 348,
+                    349, 258, 136, 213, 191, 299, 366, 290, 180, 154, 372, 313, 47, 27, 368, 261,
+                ),
+            ),
+            extra_delta_transform=False,
+        ),
+        batch_size=1,
+        num_workers=0,
+        num_train_steps=5,
+        log_interval=1,
+        save_interval=4,
+        wandb_enabled=False,
+        fsdp_devices=1,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=10_000,
+            peak_lr=5e-5,
+            decay_steps=1_000_000,
+            decay_lr=5e-5,
+        ),
+        optimizer=_optimizer.AdamW(clip_gradient_norm=1.0),
+        ema_decay=0.999,
+        weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
+    ),
+    # T1 LoRA smoke test. The shared T1 statistics are loaded explicitly so this
+    # configuration remains independent from prior debug-run assets.
+    TrainConfig(
+        name="cl_pi05_t1_lora_smoke",
+        exp_name="t1_lora_5steps_20261024",
+        model=pi0_config.Pi0Config(
+            pi05=True,
+            action_horizon=10,
+            discrete_state_input=False,
+            paligemma_variant="gemma_2b_lora",
+            action_expert_variant="gemma_300m_lora",
+        ),
+        data=LeRobotLiberoDataConfig(
+            repo_id="physical-intelligence/libero",
+            assets=CL_T1_T4_NORM_STATS_ASSETS,
+            base_config=DataConfig(
+                prompt_from_task=True,
+                dataset_root="/mnt/disk20t/xieyuxuan/denghaoxindatadisk/libero_data",
+                episode_ids=(
+                    109, 55, 111, 364, 229, 228, 298, 127, 61, 311, 209, 279, 227, 159, 133, 348,
+                    349, 258, 136, 213, 191, 299, 366, 290, 180, 154, 372, 313, 47, 27, 368, 261,
+                ),
+            ),
+            extra_delta_transform=False,
+        ),
+        batch_size=1,
+        num_workers=0,
+        num_train_steps=5,
+        log_interval=1,
+        save_interval=4,
+        wandb_enabled=False,
+        fsdp_devices=1,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=10_000,
+            peak_lr=5e-5,
+            decay_steps=1_000_000,
+            decay_lr=5e-5,
+        ),
+        optimizer=_optimizer.AdamW(clip_gradient_norm=1.0),
+        ema_decay=None,
+        freeze_filter=nnx.Any(
+            pi0_config.Pi0Config(
+                pi05=True,
+                action_horizon=10,
+                discrete_state_input=False,
+                paligemma_variant="gemma_2b_lora",
+                action_expert_variant="gemma_300m_lora",
+            ).get_freeze_filter(),
+            nnx_utils.PathRegex("PaliGemma/img/.*"),
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader(
+            "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cache_test/pi05_base_params/params"
+        ),
+    ),
+    # Produces the one shared normalization asset for all future T1--T4 runs.
+    # Its episode list is exactly T1's train_episode_ids in cl/splits.json.
+    TrainConfig(
+        name="cl_t1_norm_stats",
+        model=pi0_config.Pi0Config(pi05=True, action_horizon=10, discrete_state_input=False),
+        data=LeRobotLiberoDataConfig(
+            repo_id="physical-intelligence/libero",
+            base_config=DataConfig(
+                prompt_from_task=True,
+                dataset_root="/mnt/disk20t/xieyuxuan/denghaoxindatadisk/libero_data",
+                episode_ids=(
+                    109, 55, 111, 364, 229, 228, 298, 127, 61, 311, 209, 279, 227, 159, 133, 348,
+                    349, 258, 136, 213, 191, 299, 366, 290, 180, 154, 372, 313, 47, 27, 368, 261,
+                ),
+            ),
+            extra_delta_transform=False,
+        ),
+        batch_size=1,
+        num_workers=0,
+        wandb_enabled=False,
     ),
     #
     # Fine-tuning Aloha configs.

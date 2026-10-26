@@ -1,0 +1,474 @@
+22:13:13.882 [I] Running on: ndgcgl-G658V3                                                        (3633427:train.py:196)
+INFO:2026-10-26 22:13:14,492:jax._src.xla_bridge:925: Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+22:13:14.492 [I] Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig' (3633427:xla_bridge.py:925)
+INFO:2026-10-26 22:13:14,493:jax._src.xla_bridge:925: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+22:13:14.493 [I] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory (3633427:xla_bridge.py:925)
+22:13:15.343 [I] Created BasePyTreeCheckpointHandler: use_ocdbt=True, use_zarr3=False, pytree_metadata_options=PyTreeMetadataOptions(support_rich_types=False), array_metadata_store=<orbax.checkpoint._src.metadata.array_metadata_store.Store object at 0x76eb8bb96190> (3633427:base_pytree_checkpoint_handler.py:334)
+22:13:15.343 [I] Created BasePyTreeCheckpointHandler: use_ocdbt=True, use_zarr3=False, pytree_metadata_options=PyTreeMetadataOptions(support_rich_types=False), array_metadata_store=<orbax.checkpoint._src.metadata.array_metadata_store.Store object at 0x76eb8bb96190> (3633427:base_pytree_checkpoint_handler.py:334)
+22:13:15.343 [I] [thread=MainThread] Failed to get flag value for EXPERIMENTAL_ORBAX_USE_DISTRIBUTED_PROCESS_ID. (3633427:multihost.py:390)
+22:13:15.344 [I] [process=0][thread=MainThread] CheckpointManager init: checkpointers=None, item_names=None, item_handlers={'assets': <openpi.training.checkpoints.CallbackHandler object at 0x76ec3aef6150>, 'train_state': <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4488650>, 'params': <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4932890>}, handler_registry=None (3633427:checkpoint_manager.py:620)
+22:13:15.344 [I] Deferred registration for item: "assets". Adding handler `<openpi.training.checkpoints.CallbackHandler object at 0x76ec3aef6150>` for item "assets" and save args `<class 'openpi.training.checkpoints.CallbackSave'>` and restore args `<class 'openpi.training.checkpoints.CallbackRestore'>` to `_handler_registry`. (3633427:composite_checkpoint_handler.py:234)
+22:13:15.344 [I] Deferred registration for item: "train_state". Adding handler `<orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4488650>` for item "train_state" and save args `<class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeSaveArgs'>` and restore args `<class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeRestoreArgs'>` to `_handler_registry`. (3633427:composite_checkpoint_handler.py:234)
+22:13:15.344 [I] Deferred registration for item: "params". Adding handler `<orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4932890>` for item "params" and save args `<class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeSaveArgs'>` and restore args `<class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeRestoreArgs'>` to `_handler_registry`. (3633427:composite_checkpoint_handler.py:234)
+22:13:15.344 [I] Deferred registration for item: "metrics". Adding handler `<orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonCheckpointHandler object at 0x76e9f45be710>` for item "metrics" and save args `<class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonSaveArgs'>` and restore args `<class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonRestoreArgs'>` to `_handler_registry`. (3633427:composite_checkpoint_handler.py:234)
+22:13:15.344 [I] Initialized registry DefaultCheckpointHandlerRegistry({('assets', <class 'openpi.training.checkpoints.CallbackSave'>): <openpi.training.checkpoints.CallbackHandler object at 0x76ec3aef6150>, ('assets', <class 'openpi.training.checkpoints.CallbackRestore'>): <openpi.training.checkpoints.CallbackHandler object at 0x76ec3aef6150>, ('train_state', <class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeSaveArgs'>): <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4488650>, ('train_state', <class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeRestoreArgs'>): <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4488650>, ('params', <class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeSaveArgs'>): <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4932890>, ('params', <class 'orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeRestoreArgs'>): <orbax.checkpoint._src.handlers.pytree_checkpoint_handler.PyTreeCheckpointHandler object at 0x76e9f4932890>, ('metrics', <class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonSaveArgs'>): <orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonCheckpointHandler object at 0x76e9f45be710>, ('metrics', <class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonRestoreArgs'>): <orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonCheckpointHandler object at 0x76e9f45be710>}). (3633427:composite_checkpoint_handler.py:502)
+22:13:15.345 [I] orbax-checkpoint version: 0.11.13                                                (3633427:abstract_checkpointer.py:35)
+22:13:15.345 [I] [process=0][thread=MainThread] Using barrier_sync_fn: <function get_barrier_sync_fn.<locals>.<lambda> at 0x76e9f47e0040> timeout: 7200 secs and primary_host=0 for async checkpoint writes (3633427:async_checkpointer.py:170)
+22:13:15.345 [I] Found 0 checkpoint steps in /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307 (3633427:checkpoint_manager.py:1701)
+22:13:15.345 [I] [process=0][thread=MainThread] CheckpointManager created,  primary_host=0, CheckpointManagerOptions=CheckpointManagerOptions(save_interval_steps=1, max_to_keep=1, keep_time_interval=None, keep_period=5000, should_keep_fn=None, best_fn=None, best_mode='max', keep_checkpoints_without_metrics=True, step_prefix=None, step_format_fixed_length=None, step_name_format=None, create=False, cleanup_tmp_directories=False, save_on_steps=frozenset(), single_host_load_and_broadcast=False, todelete_subdir=None, enable_background_delete=False, read_only=False, enable_async_checkpointing=True, async_options=AsyncOptions(timeout_secs=7200, barrier_sync_fn=None, post_finalization_callback=None, create_directories_asynchronously=True), multiprocessing_options=MultiprocessingOptions(primary_host=0, active_processes=None, barrier_sync_key_prefix=None), should_save_fn=None, file_options=FileOptions(path_permission_mode=None), save_root_metadata=True, temporary_path_class=None, save_decision_policy=None, prevent_write_metrics=False), root_directory=/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307: <orbax.checkpoint.checkpoint_manager.CheckpointManager object at 0x76e9f4489d90> (3633427:checkpoint_manager.py:801)
+22:13:15.444 [I] Loaded norm stats from assets/cl_t1_norm_stats/physical-intelligence/libero      (3633427:config.py:211)
+22:13:15.445 [I] data_config: DataConfig(repo_id='physical-intelligence/libero', dataset_root='/mnt/disk20t/xieyuxuan/denghaoxindatadisk/libero_data', episode_ids=(109, 55, 111, 364, 229, 228, 298, 127, 61, 311, 209, 279, 227, 159, 133, 348, 349, 258, 136, 213, 191, 299, 366, 290, 180, 154, 372, 313, 47, 27, 368, 261), asset_id='physical-intelligence/libero', norm_stats={'state': NormStats(mean=array([-0.26035863, -0.00662758,  1.16170001,  2.78279972, -1.09812033,
+       -0.15826192,  0.02253372, -0.02393968]), std=array([0.08578265, 0.12372533, 0.08530401, 0.3918359 , 0.76981276,
+       0.17357112, 0.01203653, 0.01114   ]), q01=array([-0.46331384, -0.18392665,  0.98663969,  1.85851635, -2.40967726,
+       -0.59572154,  0.00627961, -0.03998443]), q99=array([-0.13878403,  0.17827767,  1.31316525,  3.15720163,  0.00507982,
+        0.19412033,  0.03991211, -0.01448023])), 'actions': NormStats(mean=array([-0.10361179, -0.06754556, -0.08006665, -0.00835598,  0.00652354,
+       -0.06843216,  0.43282327]), std=array([0.27606073, 0.27984527, 0.40897372, 0.0289066 , 0.03134205,
+       0.06228208, 0.90147883]), q01=array([-0.75378964, -0.72642107, -0.9375    , -0.13287072, -0.07146401,
+       -0.21078429, -1.        ]), q99=array([0.54014141, 0.50856212, 0.937125  , 0.051105  , 0.11031371,
+       0.10638286, 0.9996    ]))}, repack_transforms=Group(inputs=[RepackTransform(structure={'observation/image': 'image', 'observation/wrist_image': 'wrist_image', 'observation/state': 'state', 'actions': 'actions', 'prompt': 'prompt'})], outputs=()), data_transforms=Group(inputs=[LiberoInputs(model_type=<ModelType.PI05: 'pi05'>)], outputs=[LiberoOutputs()]), model_transforms=Group(inputs=[InjectDefaultPrompt(prompt=None), ResizeImages(height=224, width=224), TokenizePrompt(tokenizer=<openpi.models.tokenizer.PaligemmaTokenizer object at 0x76eb8c2ed110>, discrete_state_input=False), PadStatesAndActions(model_action_dim=32)], outputs=()), use_quantile_norm=True, action_sequence_keys=('actions',), prompt_from_task=True, rlds_data_dir=None, action_space=None, datasets=()) (3633427:data_loader.py:270)
+22:13:15.445 [W] 
+The dataset you requested (physical-intelligence/libero) is in 2.0 format.
+While current version of LeRobot is backward-compatible with it, the version of your dataset still uses global
+stats instead of per-episode stats. Update your dataset stats to the new format using this command:
+```
+python lerobot/common/datasets/v21/convert_dataset_v20_to_v21.py --repo-id=physical-intelligence/libero
+```
+
+If you encounter a problem, contact LeRobot maintainers on [Discord](https://discord.com/invite/s3KuuzsPFb)
+or open an [issue on GitHub](https://github.com/huggingface/lerobot/issues/new/choose).
+ (3633427:utils.py:303)
+22:13:15.452 [W] 
+The dataset you requested (physical-intelligence/libero) is in 2.0 format.
+While current version of LeRobot is backward-compatible with it, the version of your dataset still uses global
+stats instead of per-episode stats. Update your dataset stats to the new format using this command:
+```
+python lerobot/common/datasets/v21/convert_dataset_v20_to_v21.py --repo-id=physical-intelligence/libero
+```
+
+If you encounter a problem, contact LeRobot maintainers on [Discord](https://discord.com/invite/s3KuuzsPFb)
+or open an [issue on GitHub](https://github.com/huggingface/lerobot/issues/new/choose).
+ (3633427:utils.py:303)
+22:13:15.541 [I] local_batch_size: 4                                                              (3633427:data_loader.py:351)
+22:13:16.381 [I] Initialized data loader:
+[0].images['base_0_rgb']: (4, 224, 224, 3)@float32
+[0].images['left_wrist_0_rgb']: (4, 224, 224, 3)@float32
+[0].images['right_wrist_0_rgb']: (4, 224, 224, 3)@float32
+[0].image_masks['base_0_rgb']: (4,)@bool
+[0].image_masks['left_wrist_0_rgb']: (4,)@bool
+[0].image_masks['right_wrist_0_rgb']: (4,)@bool
+[0].state: (4, 32)@float32
+[0].tokenized_prompt: (4, 200)@int32
+[0].tokenized_prompt_mask: (4, 200)@bool
+[1]: (4, 10, 32)@float32 (3633427:train.py:227)
+22:13:18.615 [I] Created BasePyTreeCheckpointHandler: use_ocdbt=True, use_zarr3=False, pytree_metadata_options=PyTreeMetadataOptions(support_rich_types=False), array_metadata_store=<orbax.checkpoint._src.metadata.array_metadata_store.Store object at 0x76eb8bb96190> (3633427:base_pytree_checkpoint_handler.py:334)
+22:13:18.638 [I] Restoring checkpoint from /mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cache_test/pi05_base_params/params. (3633427:checkpointer.py:298)
+22:14:10.461 [I] [process=0] /jax/checkpoint/read/bytes_per_sec: 246.8 MiB/s (total bytes: 12.5 GiB) (time elapsed: 51 seconds) (per-host) (3633427:base_pytree_checkpoint_handler.py:114)
+22:14:10.461 [I] Finished restoring checkpoint in 51.82 seconds from /mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cache_test/pi05_base_params/params. (3633427:checkpointer.py:309)
+22:16:14.029 [I] Initialized train state:
+['PaliGemma']['img']['Transformer']['encoder_norm']['bias'].value: (1152,)@bfloat16
+['PaliGemma']['img']['Transformer']['encoder_norm']['scale'].value: (1152,)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['LayerNorm_0']['bias'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['LayerNorm_0']['scale'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['LayerNorm_1']['bias'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['LayerNorm_1']['scale'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MlpBlock_0']['Dense_0']['bias'].value: (27, 4304)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MlpBlock_0']['Dense_0']['kernel'].value: (27, 1152, 4304)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MlpBlock_0']['Dense_1']['bias'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MlpBlock_0']['Dense_1']['kernel'].value: (27, 4304, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['key']['bias'].value: (27, 16, 72)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['key']['kernel'].value: (27, 1152, 16, 72)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['out']['bias'].value: (27, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['out']['kernel'].value: (27, 16, 72, 1152)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['query']['bias'].value: (27, 16, 72)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['query']['kernel'].value: (27, 1152, 16, 72)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['value']['bias'].value: (27, 16, 72)@bfloat16
+['PaliGemma']['img']['Transformer']['encoderblock']['MultiHeadDotProductAttention_0']['value']['kernel'].value: (27, 1152, 16, 72)@bfloat16
+['PaliGemma']['img']['embedding']['bias'].value: (1152,)@bfloat16
+['PaliGemma']['img']['embedding']['kernel'].value: (14, 14, 3, 1152)@bfloat16
+['PaliGemma']['img']['head']['bias'].value: (2048,)@bfloat16
+['PaliGemma']['img']['head']['kernel'].value: (1152, 2048)@bfloat16
+['PaliGemma']['img']['pos_embedding'].value: (1, 256, 1152)@bfloat16
+['PaliGemma']['llm']['embedder']['input_embedding'].value: (257152, 2048)@bfloat16
+['PaliGemma']['llm']['final_norm']['scale'].value: (2048,)@bfloat16
+['PaliGemma']['llm']['final_norm_1']['Dense_0']['bias'].value: (3072,)@bfloat16
+['PaliGemma']['llm']['final_norm_1']['Dense_0']['kernel'].value: (1024, 3072)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum']['lora_a'].value: (18, 8, 256, 16)@float32
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum']['lora_b'].value: (18, 8, 16, 2048)@float32
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum']['w'].value: (18, 8, 256, 2048)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum_1']['lora_a'].value: (18, 8, 256, 32)@float32
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum_1']['lora_b'].value: (18, 8, 32, 1024)@float32
+['PaliGemma']['llm']['layers']['attn']['attn_vec_einsum_1']['w'].value: (18, 8, 256, 1024)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['kv_einsum']['lora_a'].value: (18, 2, 1, 2048, 16)@float32
+['PaliGemma']['llm']['layers']['attn']['kv_einsum']['lora_b'].value: (18, 2, 1, 16, 256)@float32
+['PaliGemma']['llm']['layers']['attn']['kv_einsum']['w'].value: (18, 2, 1, 2048, 256)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['kv_einsum_1']['lora_a'].value: (18, 2, 1, 1024, 32)@float32
+['PaliGemma']['llm']['layers']['attn']['kv_einsum_1']['lora_b'].value: (18, 2, 1, 32, 256)@float32
+['PaliGemma']['llm']['layers']['attn']['kv_einsum_1']['w'].value: (18, 2, 1, 1024, 256)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['q_einsum']['lora_a'].value: (18, 8, 2048, 16)@float32
+['PaliGemma']['llm']['layers']['attn']['q_einsum']['lora_b'].value: (18, 8, 16, 256)@float32
+['PaliGemma']['llm']['layers']['attn']['q_einsum']['w'].value: (18, 8, 2048, 256)@bfloat16
+['PaliGemma']['llm']['layers']['attn']['q_einsum_1']['lora_a'].value: (18, 8, 1024, 32)@float32
+['PaliGemma']['llm']['layers']['attn']['q_einsum_1']['lora_b'].value: (18, 8, 32, 256)@float32
+['PaliGemma']['llm']['layers']['attn']['q_einsum_1']['w'].value: (18, 8, 1024, 256)@bfloat16
+['PaliGemma']['llm']['layers']['mlp']['gating_einsum'].value: (18, 2, 2048, 16384)@bfloat16
+['PaliGemma']['llm']['layers']['mlp']['gating_einsum_lora_a'].value: (18, 2, 2048, 16)@float32
+['PaliGemma']['llm']['layers']['mlp']['gating_einsum_lora_b'].value: (18, 2, 16, 16384)@float32
+['PaliGemma']['llm']['layers']['mlp']['linear'].value: (18, 16384, 2048)@bfloat16
+['PaliGemma']['llm']['layers']['mlp']['linear_lora_a'].value: (18, 16384, 16)@float32
+['PaliGemma']['llm']['layers']['mlp']['linear_lora_b'].value: (18, 16, 2048)@float32
+['PaliGemma']['llm']['layers']['mlp_1']['gating_einsum'].value: (18, 2, 1024, 4096)@bfloat16
+['PaliGemma']['llm']['layers']['mlp_1']['gating_einsum_lora_a'].value: (18, 2, 1024, 32)@float32
+['PaliGemma']['llm']['layers']['mlp_1']['gating_einsum_lora_b'].value: (18, 2, 32, 4096)@float32
+['PaliGemma']['llm']['layers']['mlp_1']['linear'].value: (18, 4096, 1024)@bfloat16
+['PaliGemma']['llm']['layers']['mlp_1']['linear_lora_a'].value: (18, 4096, 32)@float32
+['PaliGemma']['llm']['layers']['mlp_1']['linear_lora_b'].value: (18, 32, 1024)@float32
+['PaliGemma']['llm']['layers']['pre_attention_norm']['scale'].value: (18, 2048)@bfloat16
+['PaliGemma']['llm']['layers']['pre_attention_norm_1']['Dense_0']['bias'].value: (18, 3072)@bfloat16
+['PaliGemma']['llm']['layers']['pre_attention_norm_1']['Dense_0']['kernel'].value: (18, 1024, 3072)@bfloat16
+['PaliGemma']['llm']['layers']['pre_ffw_norm']['scale'].value: (18, 2048)@bfloat16
+['PaliGemma']['llm']['layers']['pre_ffw_norm_1']['Dense_0']['bias'].value: (18, 3072)@bfloat16
+['PaliGemma']['llm']['layers']['pre_ffw_norm_1']['Dense_0']['kernel'].value: (18, 1024, 3072)@bfloat16
+['action_in_proj']['bias'].value: (1024,)@float32
+['action_in_proj']['kernel'].value: (32, 1024)@float32
+['action_out_proj']['bias'].value: (32,)@float32
+['action_out_proj']['kernel'].value: (1024, 32)@float32
+['time_mlp_in']['bias'].value: (1024,)@float32
+['time_mlp_in']['kernel'].value: (1024, 1024)@float32
+['time_mlp_out']['bias'].value: (1024,)@float32
+['time_mlp_out']['kernel'].value: (1024, 1024)@float32 (3633427:train.py:238)
+22:16:14.036 [I] Progress on: -/5 rate:- remaining:? elapsed:00:00 postfix:-                      (3633427:tqdm_logging.py:145)
+Step 0: grad_norm=0.3416, loss=0.0888, param_norm=1803.7701
+22:17:06.683 [I] Progress on: -/5 rate:- remaining:? elapsed:00:52 postfix:-                      (3633427:tqdm_logging.py:145)
+Step 1: grad_norm=0.2355, loss=0.0436, param_norm=1803.7701
+Step 2: grad_norm=0.3027, loss=0.0725, param_norm=1803.7701
+Step 3: grad_norm=nan, loss=nan, param_norm=nan
+Step 4: grad_norm=nan, loss=nan, param_norm=nan
+22:17:08.851 [I] [process=0][thread=MainThread][wait_until_finished] No Save Finalize thread to wait for. Returning. (3633427:checkpoint_manager.py:1987)
+22:17:08.852 [I] [process=0] Saving checkpoint at step 4                                          (3633427:checkpoint_manager.py:1408)
+22:17:08.852 [I] [process=0] Started async saving checkpoint to /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4. (3633427:async_checkpointer.py:439)
+22:17:08.853 [I] Using ThreadSafeKeyValueSignalingClient                                          (3633427:signaling_client.py:332)
+22:17:08.861 [I] Creating tmp directory /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0 (3633427:atomicity.py:144)
+22:17:08.869 [I] Wrote Metadata={'item_handlers': None, 'metrics': {}, 'performance_metrics': {}, 'init_timestamp_nsecs': 1793024228867769614, 'commit_timestamp_nsecs': None, 'custom_metadata': {}}, json={"item_handlers": null, "metrics": {}, "performance_metrics": {}, "init_timestamp_nsecs": 1793024228867769614, "commit_timestamp_nsecs": null, "custom_metadata": {}} to /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/_CHECKPOINT_METADATA (3633427:checkpoint.py:186)
+22:17:08.872 [I] Creating tmp directory /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/assets.orbax-checkpoint-tmp-1 (3633427:atomicity.py:144)
+22:17:08.872 [I] Creating tmp directory /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2 (3633427:atomicity.py:144)
+22:17:08.872 [I] Creating tmp directory /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/train_state.orbax-checkpoint-tmp-3 (3633427:atomicity.py:144)
+22:17:08.896 [I] Transferring arrays to host memory with options: use_replica_parallel=True, enable_pinned_host_transfer=False (3633427:replica_slices.py:341)
+22:18:07.009 [I] Transferring arrays to host memory with options: use_replica_parallel=True, enable_pinned_host_transfer=False (3633427:replica_slices.py:341)
+22:18:07.034 [I] [process=0][thread=array_type_handler] Wrote 71 array_metadata.ArrayMetadata to /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/array_metadatas/process_0 (3633427:array_metadata_store.py:198)
+22:18:12.197 [I] [process=0] /jax/checkpoint/write/blocking_bytes_per_sec: 104.1 MiB/s (total bytes: 6.4 GiB) (time elapsed: a minute) (per-host) (3633427:base_pytree_checkpoint_handler.py:114)
+22:18:12.205 [I] [process=0] /jax/checkpoint/write/blocking_bytes_per_sec: 6.3 MiB/s (total bytes: 397.9 MiB) (time elapsed: a minute) (per-host) (3633427:base_pytree_checkpoint_handler.py:114)
+22:18:12.226 [I] [process=0][thread=async_save] Background save thread started.                   (3633427:async_checkpointer.py:77)
+22:18:12.228 [I] Finished blocking save in 63.38 seconds. Continuing to save asynchronously to /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4. (3633427:async_checkpointer.py:548)
+22:18:12.229 [E] [process=0] Failed to run 5 Handler Commit operations or the Commit callback in background save thread, directory: /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4 (3633427:async_checkpointer.py:222)
+Traceback (most recent call last):
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 208, in _thread_func
+    _background_wait_for_commit_futures(
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 86, in _background_wait_for_commit_futures
+    commit_future.result()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 174, in result
+    f.result(timeout=time_remaining)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/handlers/base_pytree_checkpoint_handler.py", line 887, in _write_metadata_after_commits
+    await asyncio.to_thread(commit_future.result)
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/type_handlers.py", line 1105, in _background_serialize
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 329, in async_serialize_from_host
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 317, in write_fragment
+    await t[fragment.index].write(
+ValueError: RESOURCE_EXHAUSTED: Error writing "params.PaliGemma.img.Transformer.encoderblock.MlpBlock_0.Dense_0.kernel.value/0.0.0" in OCDBT database at local file "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/": Failed writing: "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/d/b7b84108db912fa86457214ed811ae45.__lock": Failed to write to file [OS error 28: ENOSPC No space left on device] [source locations='tensorstore/internal/os/file_util_posix.cc:343\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:668\ntensorstore/kvstore/transaction.cc:133']
+22:18:12.230 [I] [process=0][thread=MainThread][step=4] Starting CheckpointManager Save Finalize thread=save_finalize (3633427:checkpoint_manager.py:1453)
+22:18:12.253 [I] [process=0][thread=array_type_handler] Wrote 59 array_metadata.ArrayMetadata to /home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/train_state.orbax-checkpoint-tmp-3/array_metadatas/process_0 (3633427:array_metadata_store.py:198)
+22:18:12.284 [I] [process=0][thread=save_finalize] Waiting for background save thread=async_save. (3633427:async_checkpointer.py:258)
+22:18:12.285 [I] {'step': 4, 'event_type': 'save', 'directory': '/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307', 'reached_preemption': False, 'preemption_received_at': None, 'synchronous': False, 'wait_for_prev_start_time': 1793024228.851892, 'wait_for_prev_duration_secs': 0.00013828277587890625, 'checkpointer_blocking_start_time': 1793024228.8523932, 'checkpointer_blocking_duration_secs': 63.37804412841797, 'get_old_steps_start_time': 1793024292.2304826, 'get_old_steps_duration_secs': 8.344650268554688e-06, 'checkpoint_manager_blocking_start_time': 1793024228.8517323, 'checkpoint_manager_blocking_duration_secs': 63.43349885940552} (3633427:standard_logger.py:34)
+22:18:12.287 [I] [process=0][thread=save_finalize] Done with waiting for background save thread=async_save. (3633427:async_checkpointer.py:266)
+22:18:12.290 [I] Progress on: 5.00it/5.00it rate:27.9s/it remaining:00:00 elapsed:01:58 postfix:- (3633427:tqdm_logging.py:145)
+22:18:12.291 [I] Progress on: 5.00it/5.00it rate:27.9s/it remaining:00:00 elapsed:01:58 postfix:- (3633427:tqdm_logging.py:145)
+22:18:12.291 [I] Waiting for checkpoint manager to finish                                         (3633427:train.py:275)
+22:18:12.291 [I] [process=0][thread=MainThread][step=4][wait_until_finished] Waiting for Save Finalize thread (save_finalize) to complete. (3633427:checkpoint_manager.py:1998)
+22:18:12.291 [E] [process=0][thread=MainThread][step=4][wait_until_finished] Save Finalize thread (save_finalize) failed. (3633427:checkpoint_manager.py:2020)
+Traceback (most recent call last):
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 2009, in wait_until_finished
+    self._finalize_thread.get_not_none().join()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 160, in join
+    raise self.exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 147, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 2085, in _finalize
+    self._wait_for_checkpointers()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 1969, in _wait_for_checkpointers
+    self._checkpointer.wait_until_finished()  # pytype: disable=attribute-error
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 567, in wait_until_finished
+    self._async_manager.wait_until_finished()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 274, in wait_until_finished
+    self.check_for_errors()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 249, in check_for_errors
+    raise exception  # pylint: disable=raising-bad-type
+    ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 208, in _thread_func
+    _background_wait_for_commit_futures(
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 86, in _background_wait_for_commit_futures
+    commit_future.result()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 174, in result
+    f.result(timeout=time_remaining)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/handlers/base_pytree_checkpoint_handler.py", line 887, in _write_metadata_after_commits
+    await asyncio.to_thread(commit_future.result)
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/type_handlers.py", line 1105, in _background_serialize
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 329, in async_serialize_from_host
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 317, in write_fragment
+    await t[fragment.index].write(
+ValueError: RESOURCE_EXHAUSTED: Error writing "params.PaliGemma.img.Transformer.encoderblock.MlpBlock_0.Dense_0.kernel.value/0.0.0" in OCDBT database at local file "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/": Failed writing: "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/d/b7b84108db912fa86457214ed811ae45.__lock": Failed to write to file [OS error 28: ENOSPC No space left on device] [source locations='tensorstore/internal/os/file_util_posix.cc:343\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:668\ntensorstore/kvstore/transaction.cc:133']
+Traceback (most recent call last):
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/scripts/train.py", line 280, in <module>
+    main(_config.cli())
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/scripts/train.py", line 276, in main
+    checkpoint_manager.wait_until_finished()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 2009, in wait_until_finished
+    self._finalize_thread.get_not_none().join()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 160, in join
+    raise self.exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 147, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 2085, in _finalize
+    self._wait_for_checkpointers()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/checkpoint_manager.py", line 1969, in _wait_for_checkpointers
+    self._checkpointer.wait_until_finished()  # pytype: disable=attribute-error
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 567, in wait_until_finished
+    self._async_manager.wait_until_finished()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 274, in wait_until_finished
+    self.check_for_errors()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 249, in check_for_errors
+    raise exception  # pylint: disable=raising-bad-type
+    ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 208, in _thread_func
+    _background_wait_for_commit_futures(
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 86, in _background_wait_for_commit_futures
+    commit_future.result()
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 174, in result
+    f.result(timeout=time_remaining)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/handlers/base_pytree_checkpoint_handler.py", line 887, in _write_metadata_after_commits
+    await asyncio.to_thread(commit_future.result)
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/disk20t/xieyuxuan/denghaoxindatadisk/miniconda3/envs/pi05-cl/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/type_handlers.py", line 1105, in _background_serialize
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 329, in async_serialize_from_host
+    await asyncio.gather(*write_coros)
+  File "/home/xieyuxuan/denghaoxin_project/openpi_cl/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/serialization/serialization.py", line 317, in write_fragment
+    await t[fragment.index].write(
+ValueError: RESOURCE_EXHAUSTED: Error writing "params.PaliGemma.img.Transformer.encoderblock.MlpBlock_0.Dense_0.kernel.value/0.0.0" in OCDBT database at local file "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/": Failed writing: "/home/xieyuxuan/denghaoxin_project/openpi_cl/checkpoints/cl_pi05_t1_lora_smoke/t1_lora_smoke_2gpu_20261026_221307/4.orbax-checkpoint-tmp-0/params.orbax-checkpoint-tmp-2/ocdbt.process_0/d/b7b84108db912fa86457214ed811ae45.__lock": Failed to write to file [OS error 28: ENOSPC No space left on device] [source locations='tensorstore/internal/os/file_util_posix.cc:343\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:603\ntensorstore/kvstore/file/file_key_value_store.cc:668\ntensorstore/kvstore/transaction.cc:133']

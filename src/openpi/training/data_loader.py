@@ -127,6 +127,28 @@ class FakeDataset(Dataset):
         return self._num_samples
 
 
+class EpisodeFilteredLeRobotDataset(lerobot_dataset.LeRobotDataset):
+    """Make sparse original episode IDs compatible with LeRobot 0.1.0 indexing.
+
+    LeRobot preserves episode_index values from parquet files, while its
+    filtered episode_data_index table is addressed by positions in the
+    requested episode list. This adapter translates only that lookup.
+    """
+
+    def __init__(self, *args, episodes: list[int] | None = None, **kwargs):
+        super().__init__(*args, episodes=episodes, **kwargs)
+        self._episode_index_to_filtered_index = (
+            {episode_index: filtered_index for filtered_index, episode_index in enumerate(episodes)}
+            if episodes is not None
+            else None
+        )
+
+    def _get_query_indices(self, idx: int, episode_index: int):
+        if self._episode_index_to_filtered_index is not None:
+            episode_index = self._episode_index_to_filtered_index[episode_index]
+        return super()._get_query_indices(idx, episode_index)
+
+
 def create_torch_dataset(
     data_config: _config.DataConfig, action_horizon: int, model_config: _model.BaseModelConfig
 ) -> Dataset:
@@ -137,11 +159,16 @@ def create_torch_dataset(
     if repo_id == "fake":
         return FakeDataset(model_config, num_samples=1024)
 
-    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id)
-    dataset = lerobot_dataset.LeRobotDataset(
-        data_config.repo_id,
+    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(
+        repo_id, root=data_config.dataset_root
+    )
+    dataset = EpisodeFilteredLeRobotDataset(
+        repo_id,
+        root=data_config.dataset_root,
+        episodes=list(data_config.episode_ids) if data_config.episode_ids is not None else None,
         delta_timestamps={
-            key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
+            key: [t / dataset_meta.fps for t in range(action_horizon)]
+            for key in data_config.action_sequence_keys
         },
     )
 
