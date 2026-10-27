@@ -1,0 +1,33 @@
+WARNING:root:
+The dataset you requested (physical-intelligence/libero) is in 2.0 format.
+While current version of LeRobot is backward-compatible with it, the version of your dataset still uses global
+stats instead of per-episode stats. Update your dataset stats to the new format using this command:
+```
+python lerobot/common/datasets/v21/convert_dataset_v20_to_v21.py --repo-id=physical-intelligence/libero
+```
+
+If you encounter a problem, contact LeRobot maintainers on [Discord](https://discord.com/invite/s3KuuzsPFb)
+or open an [issue on GitHub](https://github.com/huggingface/lerobot/issues/new/choose).
+
+WARNING:root:
+The dataset you requested (physical-intelligence/libero) is in 2.0 format.
+While current version of LeRobot is backward-compatible with it, the version of your dataset still uses global
+stats instead of per-episode stats. Update your dataset stats to the new format using this command:
+```
+python lerobot/common/datasets/v21/convert_dataset_v20_to_v21.py --repo-id=physical-intelligence/libero
+```
+
+If you encounter a problem, contact LeRobot maintainers on [Discord](https://discord.com/invite/s3KuuzsPFb)
+or open an [issue on GitHub](https://github.com/huggingface/lerobot/issues/new/choose).
+
+已检查 10 个 batch，输入均为有限值
+已检查 20 个 batch，输入均为有限值
+已检查 30 个 batch，输入均为有限值
+已检查 40 个 batch，输入均为有限值
+已检查 50 个 batch，输入均为有限值
+已检查 60 个 batch，输入均为有限值
+已检查 70 个 batch，输入均为有限值
+已检查 80 个 batch，输入均为有限值
+已检查 90 个 batch，输入均为有限值
+已检查 100 个 batch，输入均为有限值
+PASS：前 100 个 batch 输入均未发现 NaN/Inf
