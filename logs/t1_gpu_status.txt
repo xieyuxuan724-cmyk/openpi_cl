@@ -1,0 +1,56 @@
+2026年 10月 27日 星期二 13:05:46 CST
+Tue Oct 27 13:05:46 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.309.01             Driver Version: 535.309.01   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A100-SXM4-80GB          Off | 00000000:27:00.0 Off |                    0 |
+| N/A   54C    P0              56W / 400W |  35914MiB / 81920MiB |     19%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A100-PCIE-40GB          Off | 00000000:5A:00.0 Off |                    0 |
+| N/A   75C    P0             256W / 250W |  32054MiB / 40960MiB |     81%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   2  NVIDIA A100-SXM4-80GB          Off | 00000000:98:00.0 Off |                    0 |
+| N/A   63C    P0              57W / 400W |  41904MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   3  NVIDIA A100-PCIE-40GB          Off | 00000000:B8:00.0 Off |                    0 |
+| N/A   70C    P0             290W / 250W |  31946MiB / 40960MiB |     90%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|    0   N/A  N/A      3833      G   /usr/lib/xorg/Xorg                            4MiB |
+|    0   N/A  N/A     12849      C   ...onda3/envs/llama_factory/bin/python    31922MiB |
+|    0   N/A  N/A    825799      C   python                                     1310MiB |
+|    0   N/A  N/A   1209327      C   python                                     1342MiB |
+|    0   N/A  N/A   3434601      G   .../envs/cwh_metadrive_base/bin/python     1195MiB |
+|    1   N/A  N/A      3833      G   /usr/lib/xorg/Xorg                           96MiB |
+|    1   N/A  N/A      4064      G   /usr/bin/gnome-shell                         12MiB |
+|    1   N/A  N/A     12850      C   ...onda3/envs/llama_factory/bin/python    31922MiB |
+|    2   N/A  N/A      3833      G   /usr/lib/xorg/Xorg                            4MiB |
+|    2   N/A  N/A   3434601      C   .../envs/cwh_metadrive_base/bin/python    41878MiB |
+|    3   N/A  N/A      3833      G   /usr/lib/xorg/Xorg                            4MiB |
+|    3   N/A  N/A     12851      C   ...onda3/envs/llama_factory/bin/python    31922MiB |
++---------------------------------------------------------------------------------------+
+index, name, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB]
+0, NVIDIA A100-SXM4-80GB, 535.309.01, 81920 MiB, 35914 MiB, 45136 MiB
+1, NVIDIA A100-PCIE-40GB, 535.309.01, 40960 MiB, 32054 MiB, 8284 MiB
+2, NVIDIA A100-SXM4-80GB, 535.309.01, 81920 MiB, 41904 MiB, 39145 MiB
+3, NVIDIA A100-PCIE-40GB, 535.309.01, 40960 MiB, 31946 MiB, 8392 MiB
+jax: 0.5.3
+jaxlib: 0.5.3
+jax-cuda12-plugin: 0.5.3
+jax-cuda12-pjrt: 0.5.3
+flax: 0.10.2
+optax: 0.2.4
+nvidia-nccl-cu12: 2.26.2
