@@ -159,22 +159,27 @@ def create_torch_dataset(
     if repo_id == "fake":
         return FakeDataset(model_config, num_samples=1024)
 
-    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(
-        repo_id, root=data_config.dataset_root
-    )
+    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id, root=data_config.dataset_root)
     dataset = EpisodeFilteredLeRobotDataset(
         repo_id,
         root=data_config.dataset_root,
         episodes=list(data_config.episode_ids) if data_config.episode_ids is not None else None,
         delta_timestamps={
-            key: [t / dataset_meta.fps for t in range(action_horizon)]
-            for key in data_config.action_sequence_keys
+            key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
         },
     )
 
     if data_config.prompt_from_task:
         dataset = TransformedDataset(dataset, [_transforms.PromptFromLeRobotTask(dataset_meta.tasks)])
 
+    if data_config.frame_indices is not None:
+        if (
+            not data_config.frame_indices
+            or min(data_config.frame_indices) < 0
+            or max(data_config.frame_indices) >= len(dataset)
+        ):
+            raise ValueError("Invalid continual-learning frame subset")
+        dataset = torch.utils.data.Subset(dataset, data_config.frame_indices)
     return dataset
 
 
@@ -347,6 +352,22 @@ def create_torch_data_loader(
             local_batch_size = batch_size
     else:
         local_batch_size = batch_size // jax.process_count()
+
+    if data_config.current_frame_count is not None:
+        if framework != "jax" or jax.process_count() != 1:
+            raise ValueError("Continual replay currently supports single-host JAX only")
+        n_current = data_config.current_frame_count
+        if not 0 < n_current < len(dataset):
+            raise ValueError("Replay requires nonempty current and replay partitions")
+        weights = torch.cat(
+            (
+                torch.full((n_current,), 0.5 / n_current, dtype=torch.float64),
+                torch.full((len(dataset) - n_current,), 0.5 / (len(dataset) - n_current), dtype=torch.float64),
+            )
+        )
+        sampler = torch.utils.data.WeightedRandomSampler(
+            weights, len(dataset), replacement=True, generator=torch.Generator().manual_seed(seed)
+        )
 
     logging.info(f"local_batch_size: {local_batch_size}")
     data_loader = TorchDataLoader(

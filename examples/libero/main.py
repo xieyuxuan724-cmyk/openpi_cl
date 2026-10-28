@@ -1,5 +1,6 @@
 import collections
 import dataclasses
+import json
 import logging
 import math
 import pathlib
@@ -42,10 +43,31 @@ class Args:
     #################################################################################################################
     video_out_path: str = "data/libero/videos"  # Path to save videos
 
+    initial_state_offset: int = 0
+    task_keys: tuple[str, ...] = ()
+    splits_path: str = "cl/splits.json"
+    result_path: str | None = None
+    stage: int = 0
+    checkpoint_label: str = ""
+
     seed: int = 7  # Random Seed (for reproducibility)
 
 
 def eval_libero(args: Args) -> None:
+    selected = None
+    task_keys_by_text = {}
+    if args.task_keys:
+        splits = json.loads(pathlib.Path(args.splits_path).read_text())["tasks"]
+        task_keys_by_text = {splits[k]["task_text"]: k for k in args.task_keys}
+        selected = set(task_keys_by_text)
+    if args.result_path:
+        if not args.checkpoint_label or args.stage not in range(5):
+            raise ValueError("Structured evaluation requires checkpoint_label and stage 0..4")
+        result_path = pathlib.Path(args.result_path)
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        # Never silently append a rerun to an earlier evaluation.
+        with result_path.open("x"):
+            pass
     # Set random seed
     np.random.seed(args.seed)
 
@@ -53,6 +75,10 @@ def eval_libero(args: Args) -> None:
     benchmark_dict = benchmark.get_benchmark_dict()
     task_suite = benchmark_dict[args.task_suite_name]()
     num_tasks_in_suite = task_suite.n_tasks
+    if selected is not None:
+        available = {task_suite.get_task(i).language for i in range(num_tasks_in_suite)}
+        if not selected.issubset(available):
+            raise ValueError(f"Requested tasks are not in this suite: {selected - available}")
     logging.info(f"Task suite: {args.task_suite_name}")
 
     pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
@@ -71,15 +97,30 @@ def eval_libero(args: Args) -> None:
         raise ValueError(f"Unknown task suite: {args.task_suite_name}")
 
     client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
+    server_metadata = client.get_server_metadata()
+    if args.result_path and (
+        server_metadata.get("stage") != args.stage
+        or server_metadata.get("checkpoint") != str(pathlib.Path(args.checkpoint_label).resolve())
+    ):
+        raise ValueError("Connected policy server does not match requested stage/checkpoint")
 
     # Start evaluation
     total_episodes, total_successes = 0, 0
     for task_id in tqdm.tqdm(range(num_tasks_in_suite)):
         # Get task
         task = task_suite.get_task(task_id)
+        if selected is not None and task.language not in selected:
+            continue
 
         # Get default LIBERO initial states
         initial_states = task_suite.get_task_init_states(task_id)
+
+        if (
+            args.num_trials_per_task <= 0
+            or args.initial_state_offset < 0
+            or args.initial_state_offset + args.num_trials_per_task > len(initial_states)
+        ):
+            raise ValueError("Requested more trials than available initial states")
 
         # Initialize LIBERO environment and task description
         env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
@@ -94,13 +135,14 @@ def eval_libero(args: Args) -> None:
             action_plan = collections.deque()
 
             # Set initial states
-            obs = env.set_init_state(initial_states[episode_idx])
+            obs = env.set_init_state(initial_states[args.initial_state_offset + episode_idx])
 
             # Setup
             t = 0
+            done = False
             replay_images = []
 
-            logging.info(f"Starting episode {task_episodes+1}...")
+            logging.info(f"Starting episode {task_episodes + 1}...")
             while t < max_steps + args.num_steps_wait:
                 try:
                     # IMPORTANT: Do nothing for the first few timesteps because the simulator drops objects
@@ -142,9 +184,9 @@ def eval_libero(args: Args) -> None:
 
                         # Query model to get action
                         action_chunk = client.infer(element)["actions"]
-                        assert (
-                            len(action_chunk) >= args.replan_steps
-                        ), f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
+                        assert len(action_chunk) >= args.replan_steps, (
+                            f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
+                        )
                         action_plan.extend(action_chunk[: args.replan_steps])
 
                     action = action_plan.popleft()
@@ -158,9 +200,25 @@ def eval_libero(args: Args) -> None:
                     t += 1
 
                 except Exception as e:
-                    logging.error(f"Caught exception: {e}")
-                    break
+                    raise RuntimeError(
+                        f"Evaluation infrastructure failure: task={task_id}, episode={episode_idx}"
+                    ) from e
 
+            if args.result_path:
+                record = {
+                    "protocol": server_metadata.get("identity"),
+                    "stage": args.stage,
+                    "task_key": task_keys_by_text.get(task_description, task_description),
+                    "episode": args.initial_state_offset + episode_idx,
+                    "success": bool(done),
+                    "seed": args.seed,
+                    "checkpoint": args.checkpoint_label,
+                    "suite": args.task_suite_name,
+                    "replan_steps": args.replan_steps,
+                    "max_steps": max_steps,
+                }
+                with result_path.open("a") as output:
+                    output.write(json.dumps(record) + "\n")
             task_episodes += 1
             total_episodes += 1
 
@@ -168,7 +226,7 @@ def eval_libero(args: Args) -> None:
             suffix = "success" if done else "failure"
             task_segment = task_description.replace(" ", "_")
             imageio.mimwrite(
-                pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{suffix}.mp4",
+                pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{episode_idx:03d}_{suffix}.mp4",
                 [np.asarray(x) for x in replay_images],
                 fps=10,
             )
@@ -178,6 +236,7 @@ def eval_libero(args: Args) -> None:
             logging.info(f"# episodes completed so far: {total_episodes}")
             logging.info(f"# successes: {total_successes} ({total_successes / total_episodes * 100:.1f}%)")
 
+        env.close()
         # Log final results
         logging.info(f"Current task success rate: {float(task_successes) / float(task_episodes)}")
         logging.info(f"Current total success rate: {float(total_successes) / float(total_episodes)}")

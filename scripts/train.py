@@ -1,5 +1,6 @@
 import dataclasses
 import functools
+import json
 import logging
 import platform
 from typing import Any
@@ -191,7 +192,7 @@ def train_step(
     return new_state, info
 
 
-def main(config: _config.TrainConfig):
+def main(config: _config.TrainConfig, *, run_manifest: dict | None = None):
     init_logging()
     logging.info(f"Running on: {platform.node()}")
 
@@ -215,6 +216,8 @@ def main(config: _config.TrainConfig):
         overwrite=config.overwrite,
         resume=config.resume,
     )
+    if run_manifest is not None and not resuming:
+        (config.checkpoint_dir / "manifest.json").write_text(json.dumps(run_manifest, indent=2))
     init_wandb(config, resuming=resuming, enabled=config.wandb_enabled)
 
     data_loader = _data_loader.create_data_loader(
@@ -237,6 +240,9 @@ def main(config: _config.TrainConfig):
     jax.block_until_ready(train_state)
     logging.info(f"Initialized train state:\n{training_utils.array_tree_to_info(train_state.params)}")
 
+    trainable = train_state.params.filter(config.trainable_filter)
+    logging.info("Trainable parameters:\n%s", training_utils.array_tree_to_info(trainable))
+    logging.info("Trainable parameter count: %d", sum(x.size for x in jax.tree.leaves(trainable)))
     if resuming:
         train_state = _checkpoints.restore_state(checkpoint_manager, train_state, data_loader)
 
@@ -259,6 +265,9 @@ def main(config: _config.TrainConfig):
     for step in pbar:
         with sharding.set_mesh(mesh):
             train_state, info = ptrain_step(train_rng, train_state, batch)
+        # Synchronize scalar diagnostics so non-finite runs cannot produce a final checkpoint.
+        if not all(np.isfinite(np.asarray(jax.device_get(info[k]))).all() for k in ("loss", "grad_norm")):
+            raise FloatingPointError(f"Non-finite loss/gradient at step {step}")
         infos.append(info)
         if step % config.log_interval == 0:
             stacked_infos = common_utils.stack_forest(infos)
