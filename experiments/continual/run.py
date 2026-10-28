@@ -132,7 +132,7 @@ def main():
         batch_size=args.batch_size,
         num_train_steps=args.steps,
         save_interval=1000,
-        keep_period=1000,
+        keep_period=None,
         log_interval=10,
         lr_schedule=optimizer.CosineDecaySchedule(
             warmup_steps=args.warmup, peak_lr=2.5e-5, decay_steps=max(args.steps, args.warmup + 1), decay_lr=2.5e-6

@@ -19,3 +19,7 @@ Not validated: full-size GPU training under the new schedule, numerical paramete
 - Stage-one plan: default checkpoint output resolved to checkpoints/sequential_seed42_frozen_vision beneath runtime root; recorded startup free capacity about 6020 GiB.
 - Existing CPU train/save/resume regression through the new launcher: passed in 148.30 s. Test temporary files and JAX cache used the data disk. Dependency warnings are unchanged.
 - Ruff and diff whitespace checks passed. No full-size GPU training launched by this update.
+
+## Post-validation cleanup
+
+Removed only this session's pytest temporary checkpoints, test launch logs and dummy-model JAX cache entries (6.02 GiB). Validation summaries and test source remain; original training checkpoints and logs were preserved. New runs retain only the latest checkpoint per stage (keep_period=None; existing manager max_to_keep=1), leaving four stage-end checkpoints per completed sequence.
