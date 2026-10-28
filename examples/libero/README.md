@@ -1,5 +1,9 @@
 # LIBERO Benchmark
 
+> 本仓库的四任务持续学习扩展使用独立 **Python 3.10** 仿真环境。
+> 当前服务器的安装、启动和验收步骤见 [SIMULATION.md](../../experiments/continual/SIMULATION.md)。
+> 下方保留上游的 Python 3.8 历史配置；请勿用它建立当前持续学习测评环境。
+
 This example runs the LIBERO benchmark: https://github.com/Lifelong-Robot-Learning/LIBERO
 
 Note: When updating requirements.txt in this directory, there is an additional flag `--extra-index-url https://download.pytorch.org/whl/cu113` that must be added to the `uv pip compile` command.

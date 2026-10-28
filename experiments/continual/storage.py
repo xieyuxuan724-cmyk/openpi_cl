@@ -1,8 +1,8 @@
 """Data-disk storage bootstrap; uses only the Python standard library."""
 
 import argparse
-from datetime import UTC
 from datetime import datetime
+from datetime import timezone
 import json
 import os
 from pathlib import Path
@@ -11,6 +11,8 @@ import subprocess
 import sys
 import tempfile
 import uuid
+
+UTC = timezone.utc  # noqa: UP017 -- shared with the Python 3.10 simulator.
 
 DEFAULT_ROOT = Path("/mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cl_runtime")
 
@@ -63,6 +65,7 @@ def configure(
         "cuda": root / "cache/cuda",
         "numba": root / "cache/numba",
         "matplotlib": root / "cache/matplotlib",
+        "libero": root / "cache/libero",
         "wandb": root / "logs/wandb",
         "wandb_cache": root / "cache/wandb",
         "wandb_config": root / "cache/wandb-config",
@@ -105,6 +108,7 @@ def configure(
         "CUDA_CACHE_PATH": str(directories["cuda"]),
         "NUMBA_CACHE_DIR": str(directories["numba"]),
         "MPLCONFIGDIR": str(directories["matplotlib"]),
+        "LIBERO_CONFIG_PATH": str(directories["libero"]),
         "WANDB_DIR": str(directories["wandb"]),
         "WANDB_CACHE_DIR": str(directories["wandb_cache"]),
         "WANDB_CONFIG_DIR": str(directories["wandb_config"]),

@@ -107,8 +107,8 @@ CUDA_VISIBLE_DEVICES=0 run_disk "$PY" -B -m experiments.continual.run train --st
 
 ## 评测
 
-使用独立 LIBERO 模拟器环境 examples/libero/.venv；训练环境当前不包含模拟器。
-按 examples/libero/README.md 安装，不把旧版模拟器依赖装入训练 .venv。
+服务器已建立独立 Python 3.10 LIBERO 环境，examples/libero/.venv 指向数据盘。
+四任务 CPU 渲染/步进检查通过；重建方式见 SIMULATION.md，不把仿真依赖装入训练 .venv。
 新入口自动读取训练 manifest，逐个启动已学任务的服务，选择该任务的归一化，然后评测。
 同一阶段所有任务使用同一份模型；结束任务后释放服务与模拟器。
 

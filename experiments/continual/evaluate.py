@@ -139,7 +139,11 @@ def main():
             process = subprocess.Popen(server, stdout=log, stderr=subprocess.STDOUT)
             try:
                 wait_for_server(process, args.port)
-                subprocess.run(command, check=True)
+                sim_env = os.environ.copy()
+                sim_env.setdefault("MUJOCO_GL", "osmesa")
+                sim_env.setdefault("PYOPENGL_PLATFORM", sim_env["MUJOCO_GL"])
+                sim_env.setdefault("PYNPUT_BACKEND", "dummy")
+                subprocess.run(command, check=True, env=sim_env)
             finally:
                 if process.poll() is None:
                     process.terminate()

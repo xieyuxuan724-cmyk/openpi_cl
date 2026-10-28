@@ -1,0 +1,29 @@
+# Python 3.10 simulation-only dependencies. Keep the training environment separate.
+# Torch CPU is installed separately (1.11.0+cpu) for reading LIBERO initial states.
+numpy==1.22.4
+numba==0.56.4
+llvmlite==0.39.1
+robosuite==1.4.1
+mujoco==3.2.3
+bddl==1.0.1
+gym==0.25.2
+h5py==3.10.0
+cloudpickle==2.1.0
+matplotlib==3.5.3
+imageio==2.35.1
+imageio-ffmpeg==0.5.1
+opencv-python==4.6.0.66
+pyyaml==6.0.2
+tyro==0.9.2
+tqdm==4.67.1
+dm-tree==0.1.8
+msgpack==1.1.0
+pillow==10.4.0
+websockets==14.2
+typing-extensions==4.12.2
+pynput==1.7.7
+pyopengl==3.1.7
+
+scipy==1.10.1
+future==0.18.2
+easydict==1.9
