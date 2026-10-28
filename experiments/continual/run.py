@@ -10,6 +10,8 @@ import subprocess
 from experiments.continual.protocol import digest
 from experiments.continual.protocol import read_splits
 from experiments.continual.protocol import replay_plan
+from experiments.continual.storage import DEFAULT_ROOT
+from experiments.continual.storage import configure
 
 
 def main():
@@ -20,7 +22,11 @@ def main():
     parser.add_argument("--dataset-root", type=Path, required=True)
     parser.add_argument("--base-params", type=Path, required=True)
     parser.add_argument("--norm-assets", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--storage-root", type=Path, default=Path(os.environ.get("OPENPI_CL_STORAGE_ROOT", DEFAULT_ROOT))
+    )
+    parser.add_argument("--minimum-free-gib", type=float, default=100)
     parser.add_argument("--splits", type=Path, default=Path("cl/splits.json"))
     parser.add_argument("--previous", type=Path)
     parser.add_argument("--checkpoint", type=Path)
@@ -41,6 +47,10 @@ def main():
         parser.error("T1 must start from base parameters")
     if args.stage > 1 and args.previous is None:
         parser.error("T2--T4 require --previous pointing to the previous stage checkpoint")
+    if args.output is None:
+        variant = "vision_ft" if args.unfreeze_vision else "frozen_vision"
+        args.output = args.storage_root / "checkpoints" / f"{args.method}_seed{args.seed}_{variant}"
+    storage = configure(args.storage_root, args.output, minimum_gib=args.minimum_free_gib)
     splits = read_splits(args.splits)
     episodes = {
         e["episode_index"]: e
@@ -75,6 +85,7 @@ def main():
             raise ValueError("Previous checkpoint must be the stage-end checkpoint")
     manifest = {
         "stage": args.stage,
+        "storage": storage,
         "identity": identity,
         "episode_order": order,
         "current_frames": current_count,

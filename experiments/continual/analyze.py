@@ -2,23 +2,32 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from experiments.continual.protocol import TASKS
 from experiments.continual.protocol import digest
 from experiments.continual.protocol import read_splits
 from experiments.continual.protocol import summarize
+from experiments.continual.storage import DEFAULT_ROOT
+from experiments.continual.storage import configure
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=["audit", "metrics"])
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--storage-root", type=Path, default=Path(os.environ.get("OPENPI_CL_STORAGE_ROOT", DEFAULT_ROOT))
+    )
     parser.add_argument("--splits", type=Path, default=Path("cl/splits.json"))
     parser.add_argument("--dataset-root", type=Path)
     parser.add_argument("--norm-file", type=Path)
     parser.add_argument("--results", type=Path, nargs="+")
     args = parser.parse_args()
+    storage = configure(args.storage_root, minimum_gib=1)
+    if not args.output.resolve().is_relative_to(Path(storage["root"]) / "reports"):
+        parser.error("Analysis output must be under storage-root/reports")
     if args.mode == "metrics":
         if not args.results:
             parser.error("metrics requires --results")

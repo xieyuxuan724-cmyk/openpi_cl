@@ -41,11 +41,13 @@ PY=.venv/bin/python
 DATA=/mnt/disk20t/xieyuxuan/denghaoxindatadisk/libero_data
 BASE=/mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cache_test/pi05_base_params/params
 NORM=assets/cl_t1_norm_stats
-OUT=/path/to/new/sequential_seed42
-CUDA_VISIBLE_DEVICES=0 $PY -m experiments.continual.run plan --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
-CUDA_VISIBLE_DEVICES=0 $PY -m experiments.continual.run train --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
+RUNTIME=/mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cl_runtime
+OUT="$RUNTIME/checkpoints/sequential_seed42_frozen_vision"
+run_disk() { "$PY" -B -m experiments.continual.storage --storage-root "$RUNTIME" -- "$@"; }
+CUDA_VISIBLE_DEVICES=0 run_disk "$PY" -B -m experiments.continual.run plan --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
+CUDA_VISIBLE_DEVICES=0 run_disk "$PY" -B -m experiments.continual.run train --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
 # T2: repeat all protocol options; T3/T4 similarly use the immediately previous stage.
-CUDA_VISIBLE_DEVICES=0 $PY -m experiments.continual.run train --stage 2 --previous "$OUT/cl_pi05_t1_lora_smoke/T1/9999" --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
+CUDA_VISIBLE_DEVICES=0 run_disk "$PY" -B -m experiments.continual.run train --stage 2 --previous "$OUT/cl_pi05_t1_lora_smoke/T1/9999" --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT"
 ```
 
 replay 组全阶段添加 --method replay；视觉消融全阶段添加 --unfreeze-vision。
@@ -58,7 +60,7 @@ replay 组全阶段添加 --method replay；视觉消融全阶段添加 --unfree
 ## 数据量审计
 
 ```bash
-$PY -m experiments.continual.analyze audit --dataset-root "$DATA" --norm-file "$NORM/physical-intelligence/libero/norm_stats.json" --output experiments/continual/results/data_audit.json
+run_disk "$PY" -B -m experiments.continual.analyze audit --dataset-root "$DATA" --norm-file "$NORM/physical-intelligence/libero/norm_stats.json" --output "$RUNTIME/reports/data_audit.json"
 ```
 
 输出轨迹数、帧数、动作范围、固定归一化后的范围及超过 1.01 的逐维比例。
@@ -74,9 +76,9 @@ $PY -m experiments.continual.analyze audit --dataset-root "$DATA" --norm-file "$
 serve 固定流匹配步数=10，检查 manifest，避免误用官方已微调的 pi05_libero。
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 $PY -m experiments.continual.run serve --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT" --checkpoint "$OUT/cl_pi05_t1_lora_smoke/T1/9999"
+CUDA_VISIBLE_DEVICES=0 run_disk "$PY" -B -m experiments.continual.run serve --stage 1 --dataset-root "$DATA" --base-params "$BASE" --norm-assets "$NORM" --output "$OUT" --checkpoint "$OUT/cl_pi05_t1_lora_smoke/T1/9999"
 # 另一个终端；本组四任务属于 libero_10，脚本会验证任务文本确实存在。
-examples/libero/.venv/bin/python examples/libero/main.py --task-suite-name libero_10 --task-keys T1 --num-trials-per-task 40 --initial-state-offset 10 --stage 1 --checkpoint-label "$OUT/cl_pi05_t1_lora_smoke/T1/9999" --result-path /path/to/new/eval_T1.jsonl --video-out-path /path/to/new/videos_T1
+run_disk examples/libero/.venv/bin/python examples/libero/main.py --task-suite-name libero_10 --task-keys T1 --num-trials-per-task 40 --initial-state-offset 10 --stage 1 --checkpoint-label "$OUT/cl_pi05_t1_lora_smoke/T1/9999" --result-path "$RUNTIME/reports/eval_T1.jsonl" --video-out-path "$RUNTIME/videos/T1"
 ```
 
 T2 后传 --task-keys T1 T2，依此类推；阶段末必须构成 10 个有效单元格。
@@ -87,7 +89,7 @@ T2 后传 --task-keys T1 T2，依此类推；阶段末必须构成 10 个有效�
 各训练种子单独汇总，再报告跨种子均值/标准差；40 回合只有 2.5 个百分点分辨率，勿将小差异当作确定提升。
 
 ```bash
-$PY -m experiments.continual.analyze metrics --results /path/to/eval_T1.jsonl /path/to/eval_T2.jsonl /path/to/eval_T3.jsonl /path/to/eval_T4.jsonl --output /path/to/new/metrics.json
+run_disk "$PY" -B -m experiments.continual.analyze metrics --results "$RUNTIME/reports/eval_T1.jsonl" "$RUNTIME/reports/eval_T2.jsonl" "$RUNTIME/reports/eval_T3.jsonl" "$RUNTIME/reports/eval_T4.jsonl" --output "$RUNTIME/reports/metrics.json"
 ```
 
 R[s,t] = 学完阶段 s 后在任务 t 的成功率。
@@ -97,3 +99,41 @@ R[s,t] = 学完阶段 s 后在任务 t 的成功率。
 本轮未自动运行 GPU 训练、环境 rollout 或保存重载动作一致性测试，这些是启动正式实验前的验收项。
 
 参考：https://arxiv.org/abs/2603.03818
+
+## 数据盘存储规范
+
+默认根目录：/mnt/disk20t/xieyuxuan/denghaoxindatadisk/openpi_cl_runtime。
+可通过 --storage-root 或 OPENPI_CL_STORAGE_ROOT 显式指定其他非系统文件系统。
+数据集、预训练权重和只读归一化文件仍从原路径读取，不重复搬运。
+
+| 子目录 | 内容 |
+|---|---|
+| tmp/ | Python、数据加载和第三方库临时文件 |
+| cache/ | JAX、Hugging Face、OpenPI、PyTorch、Triton、CUDA 等缓存 |
+| checkpoints/ | 按方法、种子、视觉策略分组的阶段检查点 |
+| logs/ | 每次启动独立 stdout/stderr 日志与 JSON 运行记录；时间戳为 UTC |
+| reports/ | 数据审计、逐回合 JSONL 和指标 JSON |
+| videos/ | 分实验、阶段保存的回放视频 |
+
+推荐统一用上面的 run_disk 包装器，参数设置在子进程启动前生效；原生库 stderr 同样写入日志。
+新终端需重新定义 PY、RUNTIME、OUT 和 run_disk；不修改用户全局 shell 设置。
+直接运行 continual.run 也会在导入 ML 库前配置存储，但不会自动捕获完整 stdout/stderr；因此正式运行使用包装器。
+未传 --output 时按 checkpoints/{method}_seed{seed}_{frozen_vision|vision_ft} 自动生成。
+显式 --output 必须位于运行根目录的 checkpoints/ 下，旧示例中的仓库内/系统盘输出不再接受。
+
+启动前检查：挂载文件系统与系统盘不同、解析符号链接后不越出管理目录、写权限、可用空间。
+训练/启动包装器默认至少需要 100 GiB；--minimum-free-gib 可显式调整，数据审计入口最低 1 GiB。
+每次保存检查点前额外检查至少剩余 20 GiB，空间不足即中止，不删除旧检查点腾空间。
+这些是当时的预检，并不预留磁盘空间，其他用户仍可能消耗空间。
+完整检查点约数 GiB，四阶段和多个实验组累计可达数百 GiB，运行前还应按计划核算总容量。
+只复制已缓存的公开 tokenizer 小文件到新 OpenPI 缓存，避免无谓重新下载；不复制凭据，不迁移或清理旧缓存。
+中断后临时文件保留供诊断，运行记录包含实际目录、命令和退出码。
+外部 shell 的重定向由 shell 决定；不要额外使用 > ~/... 或仓库内日志路径。
+
+CPU 回归测试也应通过包装器：
+
+```bash
+run_disk env JAX_PLATFORMS=cpu "$PY" -B -m pytest -p no:cacheprovider scripts/train_test.py -q
+```
+
+直接运行 scripts/train.py 的 cl_* 配置也有保护：未通过存储入口设置环境，或检查点仍位于仓库内时会报错。通用非 CL 配置保持原有默认行为；使用包装器后同样遵循数据盘缓存设置。

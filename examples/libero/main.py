@@ -3,6 +3,7 @@ import dataclasses
 import json
 import logging
 import math
+import os
 import pathlib
 
 import imageio
@@ -54,6 +55,13 @@ class Args:
 
 
 def eval_libero(args: Args) -> None:
+    storage_root = os.environ.get("OPENPI_CL_STORAGE_ROOT")
+    if storage_root:
+        root = pathlib.Path(storage_root).resolve()
+        if not pathlib.Path(args.video_out_path).resolve().is_relative_to(root / "videos"):
+            raise ValueError("Evaluation videos must be under storage-root/videos")
+        if args.result_path and not pathlib.Path(args.result_path).resolve().is_relative_to(root / "reports"):
+            raise ValueError("Evaluation results must be under storage-root/reports")
     selected = None
     task_keys_by_text = {}
     if args.task_keys:

@@ -2,7 +2,9 @@ import dataclasses
 import functools
 import json
 import logging
+import os
 import platform
+import shutil
 from typing import Any
 
 import etils.epath as epath
@@ -195,13 +197,25 @@ def train_step(
 def main(config: _config.TrainConfig, *, run_manifest: dict | None = None):
     init_logging()
     logging.info(f"Running on: {platform.node()}")
+    if config.name.startswith("cl_"):
+        storage_root = os.environ.get("OPENPI_CL_STORAGE_ROOT")
+        if storage_root is None:
+            raise ValueError("Continual learning requires the experiments.continual.storage launcher")
+        allowed = epath.Path(storage_root).resolve() / "checkpoints"
+        try:
+            config.checkpoint_dir.resolve().relative_to(allowed)
+        except ValueError as error:
+            raise ValueError(f"Continual checkpoints must be under {allowed}") from error
 
     if config.batch_size % jax.device_count() != 0:
         raise ValueError(
             f"Batch size {config.batch_size} must be divisible by the number of devices {jax.device_count()}."
         )
 
-    jax.config.update("jax_compilation_cache_dir", str(epath.Path("~/.cache/jax").expanduser()))
+    cache_dir = os.environ.get("JAX_COMPILATION_CACHE_DIR")
+    if cache_dir is None:
+        cache_dir = str(epath.Path(os.environ.get("XDG_CACHE_HOME", "~/.cache")) / "jax")
+    jax.config.update("jax_compilation_cache_dir", str(epath.Path(cache_dir).expanduser()))
 
     rng = jax.random.key(config.seed)
     train_rng, init_rng = jax.random.split(rng)
@@ -279,6 +293,10 @@ def main(config: _config.TrainConfig, *, run_manifest: dict | None = None):
         batch = next(data_iter)
 
         if (step % config.save_interval == 0 and step > start_step) or step == config.num_train_steps - 1:
+            minimum_gib = float(os.environ.get("OPENPI_CHECKPOINT_MIN_FREE_GIB", "0"))
+            free_gib = shutil.disk_usage(config.checkpoint_dir).free / 2**30
+            if free_gib < minimum_gib:
+                raise OSError(f"Checkpoint disk has only {free_gib:.1f} GiB free; need {minimum_gib:.1f} GiB")
             _checkpoints.save_state(checkpoint_manager, train_state, data_loader, step)
 
     logging.info("Waiting for checkpoint manager to finish")
