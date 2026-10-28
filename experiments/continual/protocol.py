@@ -1,7 +1,9 @@
 """Pure, testable definitions for the four-task continual learning protocol."""
 
+import bisect
 import hashlib
 import json
+import math
 from pathlib import Path
 import random
 
@@ -27,7 +29,7 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def replay_plan(splits, episodes, stage, budget, seed):
+def replay_plan(splits, episodes, stage, budget, seed, *, fraction=None):
     """Return episode order, selected frame offsets, and current-frame count.
 
     Replay is sampled once per previous task, without replacement. The seed for
@@ -36,19 +38,24 @@ def replay_plan(splits, episodes, stage, budget, seed):
     """
     if stage not in range(1, 5) or budget < 0:
         raise ValueError("stage must be 1..4 and budget must be nonnegative")
+    if fraction is not None and not 0 < fraction <= 1:
+        raise ValueError("Replay fraction must be in (0, 1]")
     current = splits["tasks"][TASKS[stage - 1]]["train_episode_ids"]
     order = list(current)
     current_count = sum(episodes[i]["length"] for i in current)
     indices = list(range(current_count))
     buffers = {}
     offset = current_count
-    if budget:
+    if budget or fraction is not None:
         for task_index, task in enumerate(TASKS[: stage - 1]):
             ids = splits["tasks"][task]["train_episode_ids"]
             count = sum(episodes[i]["length"] for i in ids)
-            if budget > count:
+            task_budget = math.floor(count * fraction) if fraction is not None else budget
+            if task_budget <= 0:
+                raise ValueError(f"Replay fraction selects zero frames for {task}")
+            if task_budget > count:
                 raise ValueError(f"Replay budget exceeds available frames for {task}")
-            selected = sorted(random.Random(seed + 1009 * task_index).sample(range(count), budget))
+            selected = sorted(random.Random(seed + 1009 * task_index).sample(range(count), task_budget))
             buffers[task] = selected
             indices.extend(offset + i for i in selected)
             order.extend(ids)
@@ -70,6 +77,8 @@ def summarize(records):
         identities.add(identity)
         if row.get("error"):
             raise ValueError("Evaluation contains infrastructure errors; rerun it")
+        if row["success"] not in (True, False, 0, 1):
+            raise ValueError("Success must be boolean")
         cells.setdefault((stage, task), []).append(int(row["success"]))
     rates = {k: sum(v) / len(v) for k, v in cells.items()}
     required = [(stage, task) for stage in range(1, 5) for task in TASKS[:stage]]
@@ -82,7 +91,26 @@ def summarize(records):
     if len(counts) != 1:
         raise ValueError("Unequal evaluation episode counts")
     drops = {task: rates[(i + 1, task)] - rates[(4, task)] for i, task in enumerate(TASKS[:3])}
+    nbt = {
+        task: sum(rates[(i + 1, task)] - rates[(stage, task)] for stage in range(i + 2, 5)) / (3 - i)
+        for i, task in enumerate(TASKS[:3])
+    }
+    normalized = {
+        task: nbt[task] / rates[(i + 1, task)] if rates[(i + 1, task)] > 0 else None for i, task in enumerate(TASKS[:3])
+    }
     return {
+        "per_task_nbt": nbt,
+        "nbt_mean_over_past_tasks": sum(nbt.values()) / 3,
+        "nbt_mean_over_all_tasks_last_zero": sum(nbt.values()) / 4,
+        "per_task_normalized_nbt": normalized,
+        "normalized_nbt_undefined_tasks": [task for task, value in normalized.items() if value is None],
+        "cell_wilson_95": {
+            str(stage): {
+                task: wilson_interval(sum(cells[(stage, task)]), len(cells[(stage, task)])) for task in TASKS[:stage]
+            }
+            for stage in range(1, 5)
+        },
+        "nbt_definition": "For each task, mean diagonal-minus-later SR over all later stages; report both K-1 and K denominators (last task set to zero for K).",
         "success_matrix": {str(s): {t: rates[(s, t)] for t in TASKS if (s, t) in rates} for s in range(5)},
         "episodes_per_cell": counts.pop(),
         "final_average_success": sum(rates[(4, t)] for t in TASKS) / 4,
@@ -91,3 +119,46 @@ def summarize(records):
         "diagonal_average_success": sum(rates[(i + 1, t)] for i, t in enumerate(TASKS)) / 4,
         "definition": "Final forgetting = mean_i<4 (SR_after_i_on_i - SR_after_4_on_i); negative is improvement.",
     }
+
+
+def validate_eval_metadata(metadata, stage, checkpoint, task_keys):
+    """Prevent a task from being evaluated using another task's action scale."""
+    if metadata.get("stage") != stage or metadata.get("checkpoint") != str(Path(checkpoint).resolve()):
+        raise ValueError("Connected policy server does not match requested stage/checkpoint")
+    if metadata.get("identity", {}).get("protocol_version") != 2:
+        raise ValueError("Evaluation requires a version 2 per-task normalization server")
+    if len(task_keys) != 1 or metadata.get("eval_task") != task_keys[0]:
+        raise ValueError("Evaluate exactly the task selected by the server's --eval-task")
+    if not metadata.get("norm_sha256"):
+        raise ValueError("Server has no normalization fingerprint")
+
+
+def wilson_interval(successes, count):
+    z = 1.959963984540054
+    proportion = successes / count
+    denominator = 1 + z * z / count
+    center = (proportion + z * z / (2 * count)) / denominator
+    radius = z * math.sqrt(proportion * (1 - proportion) / count + z * z / (4 * count * count)) / denominator
+    return [max(0.0, center - radius), min(1.0, center + radius)]
+
+
+def replay_audit(splits, episodes, buffers, horizon=10):
+    """Report both sampled observations and the distinct action-label coverage."""
+    report = {}
+    for task, starts in buffers.items():
+        ends = []
+        for episode_id in splits["tasks"][task]["train_episode_ids"]:
+            ends.append((ends[-1] if ends else 0) + episodes[episode_id]["length"])
+        labels = set()
+        for start in starts:
+            episode_end = ends[bisect.bisect_right(ends, start)]
+            labels.update(range(start, min(start + horizon, episode_end)))
+        report[task] = {
+            "train_frames": ends[-1],
+            "stored_start_frames": len(starts),
+            "stored_start_fraction": len(starts) / ends[-1],
+            "unique_action_label_frames": len(labels),
+            "unique_action_label_fraction": len(labels) / ends[-1],
+            "action_label_vectors_with_padding": len(starts) * horizon,
+        }
+    return report

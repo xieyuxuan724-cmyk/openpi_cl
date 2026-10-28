@@ -62,6 +62,40 @@ class TransformedDataset(Dataset[T_co]):
         return len(self._dataset)
 
 
+class TaskNormalizedDataset(Dataset):
+    """Route each sample before repacking removes its original episode ID."""
+
+    def __init__(self, dataset: Dataset, data_config: _config.DataConfig):
+        self._dataset = dataset
+        self._episode_keys = data_config.episode_norm_keys
+        if not self._episode_keys or not data_config.task_norm_stats:
+            raise ValueError("Per-task normalization requires episode routing and statistics")
+        missing = set(self._episode_keys.values()) - data_config.task_norm_stats.keys()
+        if missing:
+            raise ValueError(f"Missing normalization statistics: {missing}")
+        self._transforms = {
+            key: _transforms.compose(
+                [
+                    *data_config.repack_transforms.inputs,
+                    *data_config.data_transforms.inputs,
+                    _transforms.Normalize(stats, use_quantiles=data_config.use_quantile_norm),
+                    *data_config.model_transforms.inputs,
+                ]
+            )
+            for key, stats in data_config.task_norm_stats.items()
+        }
+
+    def __getitem__(self, index):
+        sample = self._dataset[index]
+        episode_id = int(np.asarray(sample["episode_index"]).item())
+        if episode_id not in self._episode_keys:
+            raise ValueError(f"Episode {episode_id} has no normalization assignment")
+        return self._transforms[self._episode_keys[episode_id]](sample)
+
+    def __len__(self):
+        return len(self._dataset)
+
+
 class IterableTransformedDataset(IterableDataset[T_co]):
     def __init__(
         self,
@@ -203,6 +237,8 @@ def create_rlds_dataset(
 
 def transform_dataset(dataset: Dataset, data_config: _config.DataConfig, *, skip_norm_stats: bool = False) -> Dataset:
     """Transform the dataset by applying the data transforms."""
+    if data_config.task_norm_stats is not None and not skip_norm_stats:
+        return TaskNormalizedDataset(dataset, data_config)
     norm_stats = {}
     if data_config.repo_id != "fake" and not skip_norm_stats:
         if data_config.norm_stats is None:
@@ -300,6 +336,40 @@ def create_data_loader(
     )
 
 
+class BalancedReplaySampler(torch.utils.data.Sampler):
+    """Yield exactly half current and half past samples in each local batch."""
+
+    def __init__(self, current_count: int, total_count: int, batch_size: int, seed: int, group_sizes=None):
+        if batch_size < 2 or batch_size % 2 or not 0 < current_count < total_count:
+            raise ValueError("Balanced replay requires an even batch and nonempty partitions")
+        self.current_count = current_count
+        self.total_count = total_count
+        self.batch_size = batch_size
+        self.generator = torch.Generator().manual_seed(seed)
+        self.group_sizes = tuple(group_sizes or (total_count - current_count,))
+        if any(size <= 0 for size in self.group_sizes) or sum(self.group_sizes) != total_count - current_count:
+            raise ValueError("Replay groups must partition the past samples")
+        self.group_offsets = np.cumsum((current_count, *self.group_sizes[:-1])).tolist()
+
+    def __len__(self):
+        return self.total_count // self.batch_size * self.batch_size
+
+    def __iter__(self):
+        half = self.batch_size // 2
+        for _ in range(len(self) // self.batch_size):
+            current = torch.randint(self.current_count, (half,), generator=self.generator)
+            groups = torch.randint(len(self.group_sizes), (half,), generator=self.generator).tolist()
+            past = torch.tensor(
+                [
+                    self.group_offsets[group]
+                    + torch.randint(self.group_sizes[group], (1,), generator=self.generator).item()
+                    for group in groups
+                ]
+            )
+            batch = torch.cat((current, past))
+            yield from batch[torch.randperm(self.batch_size, generator=self.generator)].tolist()
+
+
 def create_torch_data_loader(
     data_config: _config.DataConfig,
     model_config: _model.BaseModelConfig,
@@ -359,15 +429,7 @@ def create_torch_data_loader(
         n_current = data_config.current_frame_count
         if not 0 < n_current < len(dataset):
             raise ValueError("Replay requires nonempty current and replay partitions")
-        weights = torch.cat(
-            (
-                torch.full((n_current,), 0.5 / n_current, dtype=torch.float64),
-                torch.full((len(dataset) - n_current,), 0.5 / (len(dataset) - n_current), dtype=torch.float64),
-            )
-        )
-        sampler = torch.utils.data.WeightedRandomSampler(
-            weights, len(dataset), replacement=True, generator=torch.Generator().manual_seed(seed)
-        )
+        sampler = BalancedReplaySampler(n_current, len(dataset), local_batch_size, seed, data_config.replay_group_sizes)
 
     logging.info(f"local_batch_size: {local_batch_size}")
     data_loader = TorchDataLoader(

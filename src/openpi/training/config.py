@@ -62,7 +62,7 @@ class AssetsConfig:
     asset_id: str | None = None
 
 
-# Shared normalization-statistics location for the future T1--T4 training configs.
+# Legacy T1 smoke-test assets only. Formal CL runs use per-task assets.
 # The producing config below writes to
 # ``assets/cl_t1_norm_stats/physical-intelligence/libero/norm_stats.json``;
 # consumer configs should use this object rather than their per-run assets directory.
@@ -83,6 +83,10 @@ class DataConfig:
     # Optional frame subset and current/replay partition for single-host JAX CL.
     frame_indices: tuple[int, ...] | None = None
     current_frame_count: int | None = None
+    replay_group_sizes: tuple[int, ...] | None = None
+    # Optional per-task statistics and episode routing for continual learning.
+    task_norm_stats: dict[str, dict[str, _transforms.NormStats]] | None = None
+    episode_norm_keys: dict[int, str] | None = None
     # Directory within the assets directory containing the data assets.
     asset_id: str | None = None
     # Contains precomputed normalization stats. If None, normalization will not be performed.

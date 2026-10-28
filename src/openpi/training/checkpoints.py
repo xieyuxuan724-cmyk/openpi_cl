@@ -71,6 +71,9 @@ def save_state(
     def save_assets(directory: epath.Path):
         # Save the normalization stats.
         data_config = data_loader.data_config()
+        if data_config.task_norm_stats is not None:
+            for task_key, task_stats in data_config.task_norm_stats.items():
+                _normalize.save(directory / task_key, task_stats)
         norm_stats = data_config.norm_stats
         if norm_stats is not None and data_config.asset_id is not None:
             _normalize.save(directory / data_config.asset_id, norm_stats)

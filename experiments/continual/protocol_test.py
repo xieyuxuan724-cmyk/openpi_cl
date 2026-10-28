@@ -48,3 +48,33 @@ def test_metrics_signed_forgetting_and_invalid_runs():
         summarize(records[:-1])
     with pytest.raises(ValueError, match="infrastructure errors"):
         summarize([dict(r, error="environment") for r in records])
+
+
+def test_nbt_uses_all_later_stages_and_handles_zero_diagonal():
+    records = [
+        {"stage": stage, "task_key": task, "episode": ep, "success": (task == "T1" and stage in {1, 4})}
+        for stage in range(1, 5)
+        for task in TASKS[:stage]
+        for ep in range(2)
+    ]
+    result = summarize(records)
+    assert result["final_forgetting"] == 0
+    assert result["per_task_nbt"]["T1"] == pytest.approx(2 / 3)
+    assert result["nbt_mean_over_past_tasks"] == pytest.approx(2 / 9)
+    assert result["nbt_mean_over_all_tasks_last_zero"] == pytest.approx(1 / 6)
+    assert result["per_task_normalized_nbt"]["T2"] is None
+    assert result["cell_wilson_95"]["1"]["T1"][1] == pytest.approx(1)
+
+
+def test_fraction_buffer_is_per_task_and_fixed_across_stages():
+    from experiments.continual.protocol import replay_audit
+
+    splits, episodes = fixture_data()
+    episodes[0]["length"] = 23
+    episodes[1]["length"] = 47
+    plan = replay_plan(splits, episodes, 3, 0, 42, fraction=0.2)
+    assert {task: len(indices) for task, indices in plan[3].items()} == {"T1": 4, "T2": 9}
+    assert plan[3]["T1"] == replay_plan(splits, episodes, 4, 0, 42, fraction=0.2)[3]["T1"]
+    audit = replay_audit(splits, episodes, plan[3])
+    assert audit["T1"]["stored_start_fraction"] == 4 / 23
+    assert 4 <= audit["T1"]["unique_action_label_frames"] <= 23
