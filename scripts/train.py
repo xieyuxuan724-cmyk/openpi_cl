@@ -136,6 +136,14 @@ def init_train_state(
     return train_state, state_sharding
 
 
+def tree_all_finite(tree: Any) -> at.Array:
+    """Returns whether every array leaf in a PyTree contains finite values."""
+    leaves = jax.tree.leaves(tree)
+    if not leaves:
+        return jnp.asarray(True)
+    return jnp.all(jnp.stack([jnp.all(jnp.isfinite(leaf)) for leaf in leaves]))
+
+
 @at.typecheck
 def train_step(
     config: _config.TrainConfig,
@@ -167,6 +175,7 @@ def train_step(
     # Update the model in place and return the new full state.
     nnx.update(model, new_params)
     new_params = nnx.state(model)
+    trainable_params = new_params.filter(config.trainable_filter)
 
     new_state = dataclasses.replace(state, step=state.step + 1, params=new_params, opt_state=new_opt_state)
     if state.ema_decay is not None:
@@ -190,6 +199,10 @@ def train_step(
         "loss": loss,
         "grad_norm": optax.global_norm(grads),
         "param_norm": optax.global_norm(kernel_params),
+        "loss_finite": jnp.all(jnp.isfinite(loss)),
+        "grads_finite": tree_all_finite(grads),
+        "updates_finite": tree_all_finite(updates),
+        "trainable_params_finite": tree_all_finite(trainable_params),
     }
     return new_state, info
 
@@ -280,8 +293,13 @@ def main(config: _config.TrainConfig, *, run_manifest: dict | None = None):
         with sharding.set_mesh(mesh):
             train_state, info = ptrain_step(train_rng, train_state, batch)
         # Synchronize scalar diagnostics so non-finite runs cannot produce a final checkpoint.
-        if not all(np.isfinite(np.asarray(jax.device_get(info[k]))).all() for k in ("loss", "grad_norm")):
-            raise FloatingPointError(f"Non-finite loss/gradient at step {step}")
+        finite_keys = ("loss_finite", "grads_finite", "updates_finite", "trainable_params_finite")
+        finite_flags = jax.device_get({key: info[key] for key in finite_keys})
+        nonfinite = [key.removesuffix("_finite") for key, value in finite_flags.items() if not bool(np.asarray(value))]
+        if nonfinite:
+            classification = ", ".join(nonfinite)
+            logging.error("Non-finite training diagnostic at step %d: %s", step, classification)
+            raise FloatingPointError(f"Non-finite training diagnostic at step {step}: {classification}")
         infos.append(info)
         if step % config.log_interval == 0:
             stacked_infos = common_utils.stack_forest(infos)
