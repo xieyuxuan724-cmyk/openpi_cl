@@ -1,6 +1,7 @@
 """Evaluate all seen tasks with one checkpoint and each task's saved normalization."""
 
 import argparse
+import http.client
 import json
 import os
 from pathlib import Path
@@ -51,11 +52,17 @@ def wait_for_server(process, port, timeout=180):
     while time.monotonic() < deadline:
         if process.poll() is not None:
             raise RuntimeError(f"Policy server exited with code {process.returncode}; inspect its log")
+        connection = http.client.HTTPConnection("127.0.0.1", port, timeout=1)
         try:
-            with socket.create_connection(("127.0.0.1", port), timeout=1):
+            connection.request("GET", "/healthz")
+            response = connection.getresponse()
+            if response.status == 200 and response.read().strip() == b"OK":
                 return
-        except OSError:
-            time.sleep(1)
+        except (OSError, http.client.HTTPException):
+            pass
+        finally:
+            connection.close()
+        time.sleep(1)
     raise TimeoutError("Policy server did not become ready")
 
 
@@ -91,6 +98,7 @@ def main():
     if digest(args.splits) != manifest["identity"]["split_sha256"]:
         parser.error("Evaluation split differs from training")
     with socket.socket() as probe:
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         probe.bind(("127.0.0.1", args.port))
     root = Path(storage["root"])
     group = checkpoint.parents[2].name
@@ -103,35 +111,36 @@ def main():
         server = server_command(manifest, checkpoint, args.norm_assets.resolve(), root, task, args.port)
         server += ["--splits", str(args.splits.resolve())]
         command = [
-            str(args.sim_python.resolve()),
+            # Preserve the venv executable symlink so Python finds pyvenv.cfg.
+            str(args.sim_python.absolute()),
             "-B",
             "-m",
             "examples.libero.main",
-            "--host",
+            "--args.host",
             "127.0.0.1",
-            "--port",
+            "--args.port",
             str(args.port),
-            "--task-suite-name",
+            "--args.task-suite-name",
             "libero_10",
-            "--task-keys",
+            "--args.task-keys",
             task,
-            "--splits-path",
+            "--args.splits-path",
             str(args.splits.resolve()),
-            "--num-trials-per-task",
+            "--args.num-trials-per-task",
             str(args.trials),
-            "--initial-state-offset",
+            "--args.initial-state-offset",
             str(args.initial_state_offset),
-            "--stage",
+            "--args.stage",
             str(manifest["stage"]),
-            "--checkpoint-label",
+            "--args.checkpoint-label",
             str(checkpoint),
-            "--seed",
+            "--args.seed",
             str(args.eval_seed),
-            "--videos-per-task",
+            "--args.videos-per-task",
             str(args.videos_per_task),
-            "--result-path",
+            "--args.result-path",
             str(report_dir / f"{task}.jsonl"),
-            "--video-out-path",
+            "--args.video-out-path",
             str(root / "videos" / label / task),
         ]
         log_path = root / "logs" / f"{label}_{task}_server.log"

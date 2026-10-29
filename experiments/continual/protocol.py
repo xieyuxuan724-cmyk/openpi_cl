@@ -162,3 +162,27 @@ def replay_audit(splits, episodes, buffers, horizon=10):
             "action_label_vectors_with_padding": len(starts) * horizon,
         }
     return report
+
+
+def validate_previous_identity(previous, identity, stage, *, shared_t1=False):
+    """Allow an explicit common T1 baseline; all later transitions stay strict."""
+    if previous["stage"] != stage - 1:
+        raise ValueError("Previous checkpoint belongs to a different stage")
+    source = previous["identity"]
+    if not shared_t1:
+        if source != identity:
+            raise ValueError("Previous checkpoint belongs to a different protocol")
+        return
+    if not (
+        stage == 2
+        and source["method"] == "sequential"
+        and identity["method"] == "replay"
+        and source.get("replay_budget") is None
+        and source.get("replay_fraction") is None
+        and identity.get("replay_budget") is None
+        and identity.get("replay_fraction") == 0.2
+    ):
+        raise ValueError("Shared T1 is only supported for sequential T1 -> replay20 T2")
+    ignored = {"method", "replay_budget", "replay_fraction"}
+    if {k: v for k, v in source.items() if k not in ignored} != {k: v for k, v in identity.items() if k not in ignored}:
+        raise ValueError("Shared T1 must have identical training settings")

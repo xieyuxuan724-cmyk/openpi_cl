@@ -16,8 +16,21 @@ from experiments.continual.protocol import digest
 from experiments.continual.protocol import read_splits
 from experiments.continual.protocol import replay_audit
 from experiments.continual.protocol import replay_plan
+from experiments.continual.protocol import validate_previous_identity
 from experiments.continual.storage import DEFAULT_ROOT
 from experiments.continual.storage import configure
+
+
+def validate_lora_metadata(expected, available):
+    """Match the NNX /value wrapper removal used by model.restore_params."""
+    if available and all(key.endswith("/value") for key in available):
+        available = {key.removesuffix("/value"): value for key, value in available.items()}
+    lora = {key: value for key, value in expected.items() if "lora" in key}
+    if not lora or not lora.keys() <= available.keys():
+        raise ValueError("Previous checkpoint is missing LoRA parameters")
+    for key, value in lora.items():
+        if tuple(value.shape) != tuple(available[key].shape):
+            raise ValueError(f"Previous checkpoint has incompatible LoRA shape: {key}")
 
 
 def main():
@@ -35,6 +48,7 @@ def main():
     parser.add_argument("--minimum-free-gib", type=float, default=100)
     parser.add_argument("--splits", type=Path, default=Path("cl/splits.json"))
     parser.add_argument("--previous", type=Path)
+    parser.add_argument("--shared-t1", action="store_true", help="Explicitly branch replay20 T2 from sequential T1")
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--batch-size", type=int, default=8)
@@ -62,6 +76,8 @@ def main():
         parser.error("replay-fraction must be in (0, 1]")
     if args.method == "replay" and args.batch_size % 2:
         parser.error("replay requires an even batch-size for exact 1:1 sampling")
+    if args.shared_t1 and (args.stage != 2 or args.method != "replay" or args.previous is None):
+        parser.error("--shared-t1 requires replay T2 and --previous")
     if args.stage == 1 and args.previous:
         parser.error("T1 must start from base parameters")
     if args.mode != "serve" and args.stage > 1 and args.previous is None:
@@ -124,8 +140,7 @@ def main():
     }
     if args.previous:
         previous_manifest = json.loads((args.previous.parent / "manifest.json").read_text())
-        if previous_manifest["stage"] != args.stage - 1 or previous_manifest["identity"] != identity:
-            raise ValueError("Previous checkpoint belongs to a different stage or protocol")
+        validate_previous_identity(previous_manifest, identity, args.stage, shared_t1=args.shared_t1)
         previous_hashes = previous_manifest["norm_sha256"]
         if previous_hashes != {task: norm_hashes[task] for task in TASKS[: args.stage - 1]}:
             raise ValueError("Previously learned tasks must retain exactly the same normalization")
@@ -135,6 +150,7 @@ def main():
         if args.previous.name != str(args.steps - 1):
             raise ValueError("Previous checkpoint must be the stage-end checkpoint")
     manifest = {
+        "shared_t1": args.shared_t1,
         "stage": args.stage,
         "norm_sha256": norm_hashes,
         "storage": storage,
@@ -260,10 +276,7 @@ def main():
         import jax
 
         expected = jax.eval_shape(lambda: nnx.state(c.model.create(jax.random.key(args.seed)))).to_pure_dict()
-        expected_lora = {k for k in flatten_dict(expected, sep="/") if "lora" in k}
-        available = flatten_dict(metadata["params"], sep="/")
-        if not expected_lora.issubset(available):
-            raise ValueError("Previous checkpoint is missing LoRA parameters")
+        validate_lora_metadata(flatten_dict(expected, sep="/"), flatten_dict(metadata["params"], sep="/"))
     manifest_path = c.checkpoint_dir / "manifest.json"
     if args.resume:
         saved = json.loads(manifest_path.read_text())

@@ -10,6 +10,7 @@ from experiments.continual.protocol import TASKS
 from experiments.continual.protocol import digest
 from experiments.continual.protocol import read_splits
 from experiments.continual.protocol import summarize
+from experiments.continual.shared_baseline import align_shared_t1
 from experiments.continual.storage import DEFAULT_ROOT
 from experiments.continual.storage import configure
 
@@ -27,6 +28,7 @@ def main():
     parser.add_argument("--norm-assets", type=Path)
     parser.add_argument("--normalization", choices=["quantile", "zscore"], default="quantile")
     parser.add_argument("--results", type=Path, nargs="+")
+    parser.add_argument("--shared-t1", action="store_true", help="Reuse verified sequential T1 for the replay branch")
     args = parser.parse_args()
     storage = configure(args.storage_root, minimum_gib=1)
     if not args.output.resolve().is_relative_to(Path(storage["root"]) / "reports"):
@@ -35,6 +37,9 @@ def main():
         if not args.results:
             parser.error("metrics requires --results")
         rows = [json.loads(line) for p in args.results for line in p.read_text().splitlines() if line.strip()]
+        baseline = None
+        if args.shared_t1:
+            rows, baseline = align_shared_t1(rows)
         signatures = {
             (r["seed"], r["suite"], r["replan_steps"], r["max_steps"], r.get("num_steps_wait"), r.get("resize_size"))
             for r in rows
@@ -53,6 +58,8 @@ def main():
             if len({row["checkpoint"] for row in rows if row["stage"] == stage}) != 1:
                 raise ValueError("Each stage must use a single checkpoint across tasks")
         report = summarize(rows)
+        if baseline is not None:
+            report["shared_t1_baseline"] = baseline
         report["protocol"] = rows[0]["protocol"]
         report["evaluation_episode_ids"] = sorted({row["episode"] for row in rows})
         report["norm_sha256"] = {
